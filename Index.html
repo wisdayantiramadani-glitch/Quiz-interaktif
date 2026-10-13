@@ -1,0 +1,406 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Coding AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.8); }
+        }
+        .glow-effect {
+            animation: pulseGlow 3s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen text-slate-100 flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-slate-900/80 backdrop-blur-xl border border-slate-700/60 rounded-3xl shadow-2xl p-6 sm:p-8 relative overflow-hidden glow-effect">
+        
+        <!-- Decorative background elements -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div id="welcome-screen" class="text-center py-6">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 rounded-2xl mb-6 text-3xl shadow-inner">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                Kuis Coding AI
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto mb-8">
+                Uji kemampuan dan pengetahuanmu seputar Artificial Intelligence dan pemrograman Python melalui 35 soal pilihan ganda interaktif!
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> Mulai Kuis Sekarang
+                </button>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <!-- Header bar -->
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold rounded-lg">
+                        Soal <span id="current-question-num">1</span> dari 35
+                    </span>
+                </div>
+                <div class="flex items-center gap-4 text-sm font-medium text-slate-300">
+                    <div class="flex items-center gap-1.5 text-amber-400 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">
+                        <i class="fa-solid fa-clock"></i> <span id="timer">30</span>s
+                    </div>
+                    <div class="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
+                        <i class="fa-solid fa-star"></i> Skor: <span id="current-score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="w-full bg-slate-800 h-2 rounded-full mb-6 overflow-hidden">
+                <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Question box -->
+            <div class="mb-6">
+                <h2 id="question-text" class="text-lg sm:text-xl font-semibold text-slate-100 leading-snug">
+                    Pertanyaan akan muncul di sini...
+                </h2>
+            </div>
+
+            <!-- Options container -->
+            <div id="options-container" class="space-y-3 mb-6">
+                <!-- Options injected dynamically -->
+            </div>
+
+            <!-- Navigation / Action -->
+            <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+                <span id="feedback-text" class="text-sm font-medium"></span>
+                <button id="next-btn" onclick="nextQuestion()" class="hidden px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl shadow transition-all flex items-center gap-2 ml-auto">
+                    Selanjutnya <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden text-center py-6">
+            <div id="result-icon" class="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-2xl mb-4 text-3xl shadow-inner">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold mb-2">Kuis Selesai!</h2>
+            <p id="result-message" class="text-slate-400 mb-6 text-sm sm:text-base">Hebat! Kamu telah menyelesaikan seluruh soal Coding AI.</p>
+            
+            <div class="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 max-w-xs mx-auto mb-8 shadow-inner">
+                <div class="text-slate-400 text-sm mb-1">Skor Akhir Kamu</div>
+                <div id="final-score" class="text-4xl font-extrabold text-indigo-400 mb-2">0 / 35</div>
+                <div id="score-percentage" class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Akurasi: 0%</div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="restartQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Ulangi Kuis
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: 'Apa kepanjangan dari "AI"?',
+                options: ["Automatic Interface", "Artificial Intelligence", "Applied Information", "Algorithm Input"],
+                answer: 1
+            },
+            {
+                question: 'Bahasa pemrograman yang paling populer untuk Coding AI adalah...',
+                options: ["Java", "C++", "Python", "HTML"],
+                answer: 2
+            },
+            {
+                question: 'Library Python yang sering digunakan untuk Machine Learning adalah...',
+                options: ["pygame", "scikit-learn", "tkinter", "flask"],
+                answer: 1
+            },
+            {
+                question: 'Fungsi utama dari "data training" dalam AI adalah...',
+                options: ["Menghapus virus", "Melatih model agar bisa belajar dari contoh", "Membuat tampilan website", "Menyimpan password"],
+                answer: 1
+            },
+            {
+                question: 'Apa nama model AI yang bisa membuat teks seperti ChatGPT?',
+                options: ["CNN", "LLM - Large Language Model", "GPS", "URL"],
+                answer: 1
+            },
+            {
+                question: 'Perintah `import tensorflow` digunakan untuk...',
+                options: ["Membuat game", "Mengolah data dan membuat model Deep Learning", "Mengirim email", "Edit foto"],
+                answer: 1
+            },
+            {
+                question: '"Overfitting" pada model AI artinya...',
+                options: ["Model terlalu bagus di data training tapi jelek di data baru", "Model tidak bisa jalan", "Data terlalu sedikit", "Komputer kehabisan baterai"],
+                answer: 0
+            },
+            {
+                question: 'Jenis AI yang bisa mengenali gambar kucing adalah...',
+                options: ["NLP", "Computer Vision", "Robotics", "Database"],
+                answer: 1
+            },
+            {
+                question: 'Singkatan "NLP" dalam AI adalah...',
+                options: ["New Language Programming", "Natural Language Processing", "Network Link Protocol", "Number Logic Process"],
+                answer: 1
+            },
+            {
+                question: 'Apa fungsi `print()` dalam Python?',
+                options: ["Menghapus data", "Menampilkan output di layar", "Membuat loop", "Komentar"],
+                answer: 1
+            },
+            {
+                question: 'Dataset adalah...',
+                options: ["Kumpulan data yang digunakan untuk melatih AI", "Nama software", "Jenis virus", "Perangkat keras"],
+                answer: 0
+            },
+            {
+                question: 'Perintah untuk membuat komentar di Python adalah...',
+                options: ["//", "/_ _/", "#", "<!-- -->"],
+                answer: 2
+            },
+            {
+                question: 'Apa kepanjangan "CNN" dalam Computer Vision?',
+                options: ["Computer Neural Network", "Convolutional Neural Network", "Central Network Node", "Code Name Number"],
+                answer: 1
+            },
+            {
+                question: 'Algoritma yang digunakan untuk klasifikasi data sederhana adalah...',
+                options: ["K-Nearest Neighbors", "Microsoft Word", "Google Chrome", "Paint"],
+                answer: 0
+            },
+            {
+                question: 'Fungsi `model.fit()` dalam scikit-learn untuk apa?',
+                options: ["Menguji model", "Melatih model dengan data training", "Menghapus model", "Menyimpan gambar"],
+                answer: 1
+            },
+            {
+                question: 'Apa itu "Bias" dalam AI?',
+                options: ["Kesalahan karena model terlalu sederhana", "Warna di layar", "Kecepatan internet", "Nama variabel"],
+                answer: 0
+            },
+            {
+                question: 'Library untuk mengolah data tabel di Python adalah...',
+                options: ["numpy", "pandas", "matplotlib", "os"],
+                answer: 1
+            },
+            {
+                question: 'Tujuan "Validasi" pada model AI adalah...',
+                options: ["Mengecek performa model di data yang belum dilihat", "Menghapus data", "Membuat password", "Install aplikasi"],
+                answer: 0
+            },
+            {
+                question: 'Apa itu "Neuron" dalam Neural Network?',
+                options: ["Unit dasar yang memproses informasi", "Nama kabel", "Jenis virus", "Tombol keyboard"],
+                answer: 0
+            },
+            {
+                question: 'Perintah Python untuk membuat list adalah...',
+                options: ["list = ()", "list = {}", "list = []", "list = <>"],
+                answer: 2
+            },
+            {
+                question: 'AI yang digunakan untuk chatbot disebut...',
+                options: ["Computer Vision", "NLP", "Data Mining", "Cloud Computing"],
+                answer: 1
+            },
+            {
+                question: 'Apa fungsi "loss function" dalam training AI?',
+                options: ["Mengukur seberapa salah prediksi model", "Menyimpan file", "Mengganti wallpaper", "Membuka browser"],
+                answer: 0
+            },
+            {
+                question: 'Ekstensi file untuk notebook Python adalah...',
+                options: [".docx", ".py", ".ipynb", ".pdf"],
+                answer: 2
+            },
+            {
+                question: '"Supervised Learning" artinya...',
+                options: ["Belajar tanpa label data", "Belajar dengan data yang sudah ada label/jawabannya", "Belajar sambil tidur", "Belajar dari internet"],
+                answer: 1
+            },
+            {
+                question: 'Fungsi `split()` pada data digunakan untuk...',
+                options: ["Membagi data jadi data training dan data testing", "Menghapus data", "Menyalin file", "Mengirim data"],
+                answer: 0
+            },
+            {
+                question: 'Apa itu "Prompt" dalam AI generatif?',
+                options: ["Perintah/teks yang diberikan ke AI", "Nama folder", "Jenis virus", "Kabel data"],
+                answer: 0
+            },
+            {
+                question: 'Library untuk membuat grafik di Python adalah...',
+                options: ["pandas", "matplotlib", "scikit-learn", "random"],
+                answer: 1
+            },
+            {
+                question: '"Unsupervised Learning" contohnya adalah...',
+                options: ["Clustering", "Menghitung 1+1", "Mengetik di Word", "Buka YouTube"],
+                answer: 0
+            },
+            {
+                question: 'Perintah untuk mengulang kode 10 kali di Python adalah...',
+                options: ["if", "for i in range(10):", "print", "import"],
+                answer: 1
+            },
+            {
+                question: 'Apa kepanjangan "GPU" yang penting untuk training AI?',
+                options: ["General Processing Unit", "Graphics Processing Unit", "Game Playing Utility", "Global Program Update"],
+                answer: 1
+            },
+            {
+                question: 'Tujuan "Data Cleaning" adalah...',
+                options: ["Membersihkan data dari yang kosong/salah sebelum dipakai", "Menghapus komputer", "Mengganti tema", "Download file"],
+                answer: 0
+            },
+            {
+                question: 'Model AI yang bisa membuat gambar dari teks disebut...',
+                options: ["LLM", "Generative AI / Text-to-Image", "Database", "Spreadsheet"],
+                answer: 1
+            },
+            {
+                question: 'Perintah `if x > 5:` adalah contoh...',
+                options: ["Loop", "Percabangan / Kondisi", "Fungsi", "Komentar"],
+                answer: 1
+            },
+            {
+                question: 'Apa itu "API" dalam coding?',
+                options: ["Cara program berkomunikasi dengan program lain", "Nama makanan", "Jenis monitor", "Sistem operasi"],
+                answer: 0
+            },
+            {
+                question: 'Langkah pertama sebelum membuat model AI adalah...',
+                options: ["Langsung coding", "Mengumpulkan dan memahami data", "Main game", "Nonton video"],
+                answer: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval = null;
+        let timeLeft = 30;
+        let isAnswered = false;
+
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const currentQuestionNum = document.getElementById('current-question-num');
+        const currentScore = document.getElementById('current-score');
+        const timerDisplay = document.getElementById('timer');
+        const progressBar = document.getElementById('progress-bar');
+        const nextBtn = document.getElementById('next-btn');
+        const feedbackText = document.getElementById('feedback-text');
+
+        function startQuiz() {
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            currentScore.textContent = score;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            feedbackText.textContent = "";
+            nextBtn.classList.add('hidden');
+            
+            const q = quizData[currentQuestionIndex];
+            currentQuestionNum.textContent = currentQuestionIndex + 1;
+            questionText.textContent = q.question;
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50 transition-all font-medium text-slate-200 flex items-center justify-between group";
+                btn.innerHTML = `
+                    <span class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-slate-700/50 group-hover:bg-indigo-600/20 text-slate-400 group-hover:text-indigo-400 flex items-center justify-center text-xs font-semibold transition-colors">
+                            ${String.fromCharCode(65 + idx)}
+                        </span>
+                        ${opt}
+                    </span>
+                `;
+                btn.onclick = () => selectOption(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            resetTimer();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 30;
+            timerDisplay.textContent = timeLeft;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function handleTimeOut() {
+            if (isAnswered) return;
+            isAnswered = true;
+            clearInterval(timerInterval);
+            
+            const q = quizData[currentQuestionIndex];
+            const buttons = optionsContainer.children;
+            
+            // Highlight correct answer
+            buttons[q.answer].classList.remove('bg-slate-800/80', 'border-slate-700/60');
+            buttons[q.answer].classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+            
+            feedbackText.textContent = "Waktu habis!";
+            feedbackText.className = "text-sm font-medium text-amber-400";
+            
+            disableAllOptions();
+            showNextButton();
+        }
+
+        function selectOption(selectedIndex, selectedBtn) {
+            if (isAnswered) return;
+            isAnswered = true;
+            clearInterval(timerInterval);
+
+            const q = quizData[currentQuestionIndex];
+            const buttons = optionsContainer.children;
+
+            if (selectedIndex === q.answer) {
+                selectedBtn.classList.remove('bg-slate-800/80', 'border-slate-700/60');
+                selectedBtn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                score += 10; // 10 points per question
+                currentScore.textContent = score;
+                feedbackText.textContent = "Jawaban Benar! 🎉";
+                feedbackText.className = "text-sm font-medium text-emerald-400";
+            } else {
+                selectedBtn.classList.remove('bg-slate-800/80', 'border-slate-700/60');
+                selectedBtn.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+                
+                // Show correct option
+                buttons[q
